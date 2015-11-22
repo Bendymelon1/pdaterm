@@ -10,14 +10,27 @@
 
 --Variables
 --Initializes the info files
-local services = fs.open("/services", "r");
-local userFile = fs.open("/users", "r");
-local mailFile = fs.open("/mail", "r");
-local userID = {};
-local phoneNumbers = {};
-local mailDatabase = {};
+local services = fs.open("/services", "r")
+local userFile = fs.open("/users", "r")
+local phoneNumFile = fs.open("/pnums", "r")
+local mailFile = fs.open("/mail", "r")
+local userID = {}
+local phoneNumbers = {}
+local mailDatabase = {}
 
 local serverName = "MCNET";
+
+local function loadUserInfo()
+	totalUserCount = userFile.readLine()
+    
+	for line2 = 1, totalUserCount do
+        curUserID = userFile.readLine()
+        curUserPhone = phoneNumFile.readLine()
+
+        table.insert(userID, curUserId)
+        table.insert(phoneNumbers, curUserPhone)
+	end
+end
 
 --Creates and verifies a new phone number
 local function generatePhoneNum()
@@ -86,5 +99,7 @@ local function chkfiles()
 end
 
 function main()
+    openRednet()
     
+
 end
