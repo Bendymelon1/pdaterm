@@ -1,0 +1,90 @@
+--[[
+  _____  _____       _______                  
+ |  __ \|  __ \   /\|__   __|                 
+ | |__) | |  | | /  \  | | ___ _ __ _ __ ___  
+ |  ___/| |  | |/ /\ \ | |/ _ \ '__| '_ ` _ \ 
+ | |    | |__| / ____ \| |  __/ |  | | | | | |
+ |_|    |_____/_/    \_\_|\___|_|  |_| |_| |_|
+
+--]]
+
+--Variables
+--Initializes the info files
+local services = fs.open("/services", "r");
+local userFile = fs.open("/users", "r");
+local mailFile = fs.open("/mail", "r");
+local userID = {};
+local phoneNumbers = {};
+local mailDatabase = {};
+
+local serverName = "MCNET";
+
+--Creates and verifies a new phone number
+local function generatePhoneNum()
+    math.randomseed(os.time())
+
+    while true do
+        number = math.random(1000, 9999)
+        --indicates if the current generated number is used
+        flag = false; 
+
+        for i = 1, table.getn(phoneNumbers) do
+            if (phoneNumbers[i] == number) then
+                flag = true
+            end
+        end
+
+        if (not flag) return number
+    end
+end
+
+--Opens rednet on the first side
+local function openRednet()
+	local listOfSides = rs.getSides()
+	local listofPossibles = {}
+	c1 = 0
+	for c1 = 1,6 do
+		if peripheral.isPresent(tostring(listOfSides[c1])) and peripheral.getType(listOfSides[c1]) == "modem" then
+			table.insert(listofPossibles,tostring(listOfSides[c1]))
+		end
+
+		if c1 == 6 and table.maxn(listofPossibles) == 0 then
+			print("No Modem Detected!")
+			return nil
+		end
+
+		if c1 == 6 and table.maxn(listofPossibles) ~= 0 then
+			rednet.open(listofPossibles[1])
+			return listofPossibles[1]
+		end
+	end
+end
+
+-- Function to check if all files exist
+local function chkfiles()
+    if (not fs.exists("/services") then
+        shell.run("pastebin get SQvMcfK0 services")
+    end
+
+    if (not fs.exists("/users") then
+        shell.run("pastebin get SQvMcfK0 users")
+    end
+
+    if (not fs.exists("/mail")) then
+        shell.run("pastebin get SQvMcfK0 mail")
+    end
+
+    if(not fs.exists(/"userids")) then
+        shell.run("pastebin get SQvMcfK0 userids")
+    end
+
+    if (not fs.exists("/pnums")) then
+        shell.run("pastebin get SQvMcfK0 pnums")
+    end
+
+    return true
+end
+
+function main()
+    
+end
