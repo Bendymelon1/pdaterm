@@ -60,6 +60,7 @@ end
 function main()
 	openRednet()
 
+    --Initializes the info files
 	local services = fs.open("/services", "r");
 	local userFile = fs.open("/users", "r");
 	local mailFile = fs.open("/mail", "r");
@@ -70,8 +71,10 @@ function main()
 	--local serviceCount = readLines("services")
 	--local serviceName = {};
 	--local serviceAddress = {};
+
+    -- This is what will be displayed as the carrier on Client
 	local serverName = "MCNET";
-	-- This is what will be displayed as the carrier on Client
+	
 	userIDFile = "/userids"
 
 	local usrLoader = assert(fs.open(userIDFile,"r"))
@@ -132,17 +135,17 @@ function main()
 					datagbl = 100000
 				end
 				pnumsend = pnum[id]
-				tablesend = {}
-				table.insert(tablesend, textcnt)
-				table.insert(tablesend, datagbl)
-				table.insert(tablesend, pnumsend)
-				sTableSend = textutils.serialize(tablesend)
+
+                --sends user their plan details
+                --tablesend = { textCnt, dataGbl, pNumSend }
+				sTableSend = textutils.serialize({textcnt, datagbl, pnumsend})
 				rednet.send(id, sTableSend)
 				rednet.send(id, serverName)
 			else
 				rednet.send(id,"Phone not registered on network!")
 			end
 		end
+
 		if (msg == "$REGISTER") then
 			phonegen()
 			for y = 1, pnumCntR do
