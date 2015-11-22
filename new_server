@@ -20,8 +20,15 @@ local mailDatabase = {}
 
 local serverName = "MCNET";
 
+local function log(msgType, message)
+    print ("[" .. msgType .. "]\t" .. message);
+end
+
 local function loadUserInfo()
+    log("INFO", "Loading user info...")
+
 	totalUserCount = userFile.readLine()
+    log("INFO", "Detected " .. totalUserCount .. " user files. ")
     
 	for line2 = 1, totalUserCount do
         curUserID = userFile.readLine()
@@ -29,6 +36,8 @@ local function loadUserInfo()
 
         table.insert(userID, curUserId)
         table.insert(phoneNumbers, curUserPhone)
+
+        log("INFO", "Loaded user id " .. curUserID)
 	end
 end
 
@@ -57,8 +66,10 @@ local function openRednet()
 	local listofPossibles = {}
 	c1 = 0
 	for c1 = 1,6 do
-		if peripheral.isPresent(tostring(listOfSides[c1])) and peripheral.getType(listOfSides[c1]) == "modem" then
-			table.insert(listofPossibles,tostring(listOfSides[c1]))
+		if (peripheral.isPresent(tostring(listOfSides[c1])) 
+            and peripheral.getType(listOfSides[c1]) == "modem") then
+
+            table.insert(listofPossibles,tostring(listOfSides[c1]))
 		end
 
 		if c1 == 6 and table.maxn(listofPossibles) == 0 then
@@ -75,23 +86,30 @@ end
 
 -- Function to check if all files exist
 local function chkfiles()
+    log("INFO", "Checking files...")
+
     if (not fs.exists("/services") then
+        log("WARN", "/services not found. downloading.")
         shell.run("pastebin get SQvMcfK0 services")
     end
 
     if (not fs.exists("/users") then
+        log("WARN", "/users not found. downloading.")
         shell.run("pastebin get SQvMcfK0 users")
     end
 
     if (not fs.exists("/mail")) then
+        log("WARN", "/mail not found. downloading.")
         shell.run("pastebin get SQvMcfK0 mail")
     end
 
     if(not fs.exists(/"userids")) then
+        log("WARN", "/userids not found. downloading.")
         shell.run("pastebin get SQvMcfK0 userids")
     end
 
     if (not fs.exists("/pnums")) then
+        log("WARN", "/pnums not found. downloading.")
         shell.run("pastebin get SQvMcfK0 pnums")
     end
 
@@ -99,7 +117,10 @@ local function chkfiles()
 end
 
 function main()
+    chkFiles()
     openRednet()
+    readUserFiles()
+
     
 
 end
