@@ -10,18 +10,23 @@
 
 --Variables
 --Initializes the info files
-local services = fs.open("/services", "r")
+local servFile = fs.open("/services", "r")
 local userFile = fs.open("/users", "r")
 local phoneNumFile = fs.open("/pnums", "r")
 local mailFile = fs.open("/mail", "r")
+
 local userID = {}
 local phoneNumbers = {}
 local mailDatabase = {}
+local services = {}
+
+local logFile = fs.open("/logs", "a")
 
 local serverName = "MCNET";
 
 local function log(msgType, message)
     print ("[" .. msgType .. "]\t" .. message);
+    logFile.writeLine("[" .. msgType .. "]\t" .. message)
 end
 
 local function loadUserInfo()
@@ -40,6 +45,17 @@ local function loadUserInfo()
         log("INFO", "Loaded user id " .. curUserID)
 	end
 end
+
+local function writeUserInfo()
+    log("INFO", "Writing user info...")
+
+    --Clears the data file and write the data in the array
+    --to the data file
+end
+
+local function loadServices(){
+    --TODO: 69
+}
 
 --Creates and verifies a new phone number
 local function generatePhoneNum()
@@ -121,6 +137,19 @@ function main()
     openRednet()
     readUserFiles()
 
-    
+    while true do
+        id, msg = rednet.receive()
 
+        if (msg == "$SERVICES") then
+            --TODO: Handle services
+        end
+
+        if (msg == "$REGISTER") then
+            --Check if the current user is already registered
+
+            --If so, generate a new phone number
+
+            --Return the phone number and add to records
+        end
+    end
 end
