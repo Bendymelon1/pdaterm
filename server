@@ -1,3 +1,4 @@
+--Opens rednet on the first side
 local function openRednet()
 	local listOfSides = rs.getSides()
 	local listofPossibles = {}
@@ -18,29 +19,32 @@ local function openRednet()
 		end
 	end
 end
+
+-- Function to check if all files exist
 local function chkfiles()
-	if fs.exists("/services") then
-		if fs.exists("/users") then
-			if fs.exists("/mail") then
-				if fs.exists("/userids") then
-					if fs.exists("/pnums") then
-						return true
-					else
-						shell.run("pastebin get SQvMcfK0 pnums")
-					end
-				else
-					shell.run("pastebin get SQvMcfK0 userids")
-				end
-			else
-				shell.run("pastebin get SQvMcfK0 mail")
-			end
-		else
-			shell.run("pastebin get SQvMcfK0 users")
-		end
-	else
-		shell.run("pastebin get SQvMcfK0 services")
-	end
+    if (not fs.exists("/services") then
+        shell.run("pastebin get SQvMcfK0 services")
+    end
+
+    if (not fs.exists("/users") then
+        shell.run("pastebin get SQvMcfK0 users")
+    end
+
+    if (not fs.exists("/mail")) then
+        shell.run("pastebin get SQvMcfK0 mail")
+    end
+
+    if(not fs.exists(/"userids")) then
+        shell.run("pastebin get SQvMcfK0 userids")
+    end
+
+    if (not fs.exists("/pnums")) then
+        shell.run("pastebin get SQvMcfK0 pnums")
+    end
+
+    return true
 end
+
 local function readLines(filename)
 	local ctr = 0
 	for a in io.lines(filename) do
@@ -54,14 +58,14 @@ local function phonegen()
 	retpnum = "123"..gend
 end
 function main()
-	print("pass")
 	openRednet()
+
 	local services = fs.open("/services", "r");
 	local userFile = fs.open("/users", "r");
 	local mailFile = fs.open("/mail", "r");
 	local userID = {};
 	local mailDatabase = {};
-	print("pass")
+
 	--local userCount = readLines("users")
 	--local serviceCount = readLines("services")
 	--local serviceName = {};
@@ -69,19 +73,21 @@ function main()
 	local serverName = "MCNET";
 	-- This is what will be displayed as the carrier on Client
 	userIDFile = "/userids"
+
 	local usrLoader = assert(fs.open(userIDFile,"r"))
 	totalUserCount = usrLoader.readLine()
+    
 	for line2 = 1, totalUserCount do
 		table.insert(userID, line2)
 	end
-	print("pass")
+
 	local pnum = {}
 	local pnumdb = assert(fs.open("/pnums", "r"))
 	pnumCntR = pnumdb.readLine()
 	for linepn = 1, pnumCntR do
 		table.insert(pnum, linepn)
 	end
-	print("pass")
+
 	--for i = 0, serviceCount - 1 do
 		--serviceName[i] = services.readLine();
 		--serviceAddress[i] = services.readLine();
@@ -183,5 +189,6 @@ function main()
 		
 	end
 end
+
 chkfiles()
 main()
