@@ -308,10 +308,70 @@ function rednetControl()
 	end
 end
 
+function resetColor()
+	term.setBackgroundColor(colors.white)
+	term.clear()
+	repaint()
+end
+
+function newMainMenu()
+	resetColor()
+	term.setCursorPos(2,3)
+	term.setBackgroundColor(colors.blue)
+	write("   ")
+	term.setCursorPos(2,4)
+	term.setTextColor(colors.red)
+	write("GPS")
+	term.setCursorPos(2,5)
+	write("   ")
+	term.setCursorPos(2,6)
+	term.setBackgroundColor(colors.white)
+	write("GPS")
+	term.setCursorPos(23,16)
+	term.setBackgroundColor(colors.red)
+	term.setTextColor(colors.white)
+	write("   ")
+	term.setCursorPos(23,17)
+	write(" X ")
+	term.setCursorPos(23,18)
+	write("   ")
+	term.setCursorPos(21,19)
+	term.setTextColor(colors.red)
+	term.setBackgroundColor(colors.white)
+	write("Return")
+	local event, button, x, y = os.pullEvent("mouse_click");
+	
+	if x >= 2 and x <= 4 then
+		if y >= 3 and y <= 5 then
+			showInformationMessage("Please wait...","Getting Location", "");
+			if (gps.locate(2) == nil) then
+				showErrorMessage("No GPS Signal.");
+				sleep(2);
+			else
+				x, y, z = gps.locate();
+				showInformationMessage("GPS","Your Location: ", x .. ", " .. y .. ", " .. z);
+				sleep(5);
+			end
+		end
+	end
+	if x >= 23 and x <= 25 then
+		if y >= 16 and y <= 18 then
+			repaint()
+			displayMainMenu()
+		end
+	end
+	newMainMenu()
+end
+
 function displayMainMenu()
 	
 	term.setTextColor(colors.red);
-
+	
+	term.setCursorPos(2,3);
+	term.setBackgroundColor(colors.yellow);
+	write("     [BETA] New GUI     ");
+	term.setBackgroundColor(colors.lightGray);
+	
 	term.setCursorPos(2, 5);
 	term.setBackgroundColor(colors.yellow);
 	write("  Current GPS Position  ");
@@ -338,10 +398,15 @@ function displayMainMenu()
 	term.setCursorPos(2, 17);
 	term.setBackgroundColor(colors.yellow);
 	write("       Shutdown         ");
+	term.setCursorPos(1,19);
+	write("12345678901234567890123456")
 	
 	local event, button, x, y = os.pullEvent("mouse_click");
 
 	if (button == 1) then
+		if (y == 3) then
+			newMainMenu()
+		end
 		if (y == 5) then
 			showInformationMessage("Please wait...","Getting Location", "");
 			if (gps.locate(2) == nil) then
