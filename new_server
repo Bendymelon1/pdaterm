@@ -14,7 +14,9 @@ local servFile = fs.open("/services", "r")
 local userFile = fs.open("/users", "r")
 local phoneNumFile = fs.open("/pnums", "r")
 local mailFile = fs.open("/mail", "r")
+local planFile = fs.open("/plans", "r")
 
+local plandb = {}
 local userID = {}
 local phoneNumbers = {}
 local mailDatabase = {}
@@ -23,6 +25,7 @@ local services = {}
 local logFile = fs.open("/logs", "a")
 
 local serverName = "MCNET";
+
 
 local function log(msgType, message)
     print ("[" .. msgType .. "]\t" .. message);
@@ -38,9 +41,11 @@ local function loadUserInfo()
 	for line2 = 1, totalUserCount do
         curUserID = userFile.readLine()
         curUserPhone = phoneNumFile.readLine()
+		curUserPlan = planFile.readLine()
 
         table.insert(userID, curUserId)
         table.insert(phoneNumbers, curUserPhone)
+		table.insert(plandb, curUserPlan)
 
         log("INFO", "Loaded user id " .. curUserID)
 	end
@@ -53,9 +58,9 @@ local function writeUserInfo()
     --to the data file
 end
 
-local function loadServices(){
+local function loadServices()
     --TODO: 69
-}
+end
 
 --Creates and verifies a new phone number
 local function generatePhoneNum()
@@ -72,8 +77,10 @@ local function generatePhoneNum()
             end
         end
 
-        if (not flag) return number
-    end
+        if (not flag) then 
+			return number
+		end
+	end
 end
 
 --Opens rednet on the first side
@@ -82,10 +89,8 @@ local function openRednet()
 	local listofPossibles = {}
 	c1 = 0
 	for c1 = 1,6 do
-		if (peripheral.isPresent(tostring(listOfSides[c1])) 
-            and peripheral.getType(listOfSides[c1]) == "modem") then
-
-            table.insert(listofPossibles,tostring(listOfSides[c1]))
+		if peripheral.isPresent(tostring(listOfSides[c1])) and peripheral.getType(listOfSides[c1]) == "modem" then
+			table.insert(listofPossibles,tostring(listOfSides[c1]))
 		end
 
 		if c1 == 6 and table.maxn(listofPossibles) == 0 then
@@ -100,16 +105,50 @@ local function openRednet()
 	end
 end
 
+local function userExists(curUserId)
+    for i = 1, table.getn(userID) do
+        if (userID[i] == curUserId) then
+            return true
+        end
+    end
+
+    return false
+end
+
+local function getUserInfo(user)
+    if (not userExists(user)) then
+        return nil
+    end
+
+    for i = 1, table.getn(userID) do
+        if (userID[i] == user) then
+            return {userID[i], phoneNumbers[i]}
+        end
+    end
+
+    return nil
+end
+
+local function createUser()
+    local newUserID = table.getn(userID) + 1
+    local newPhoneNumber = generatePhoneNum
+    
+    table.insert(userID, newUserID)
+    table.insert(phoneNumbers, newPhoneNumber)
+    
+    tmpUser = {newUserID, newPhoneNumber} 
+end
+
 -- Function to check if all files exist
 local function chkfiles()
     log("INFO", "Checking files...")
 
-    if (not fs.exists("/services") then
+    if (not fs.exists("/services")) then
         log("WARN", "/services not found. downloading.")
         shell.run("pastebin get SQvMcfK0 services")
     end
 
-    if (not fs.exists("/users") then
+    if (not fs.exists("/users")) then
         log("WARN", "/users not found. downloading.")
         shell.run("pastebin get SQvMcfK0 users")
     end
@@ -119,7 +158,7 @@ local function chkfiles()
         shell.run("pastebin get SQvMcfK0 mail")
     end
 
-    if(not fs.exists(/"userids")) then
+    if(not fs.exists("/userids")) then
         log("WARN", "/userids not found. downloading.")
         shell.run("pastebin get SQvMcfK0 userids")
     end
@@ -133,11 +172,17 @@ local function chkfiles()
 end
 
 function main()
-    chkFiles()
-    openRednet()
-    readUserFiles()
-
+    
+    --readUserFiles()
+	
+	term.clear();
+	term.setCursorPos(1, 1);
+	term.setTextColor(colors.red);
+	print ("          Phone Carrier Server\n");
+	term.setTextColor(colors.white);
+	
     while true do
+		print ("\n\nListening for Requests...");
         id, msg = rednet.receive()
 
         if (msg == "$SERVICES") then
@@ -145,11 +190,35 @@ function main()
         end
 
         if (msg == "$REGISTER") then
-            --Check if the current user is already registered
+            if (not userExists(id)) then
+                local newUser = tmpUser
+                rednet.send(id, textutils.serialize(newUser))
+            else
+                rednet.send(id, "User already registered. ")
+            end
 
-            --If so, generate a new phone number
-
-            --Return the phone number and add to records
+        end
+		
+		if (msg == "$INFO") then
+            rednet.send(id, "$SERVERID " .. serverName)
+        end
+		
+        if (msg == "$GETC") then
+			if plandb[id] == "1" then
+				txtlim = 100
+				weblim = 100
+			end
+			if plandb[id] == "2" then
+				txtlim = 2000
+				weblim = 100000
+			end
+			sendpnum = phoneNumbers[id]
+			sendr = { txtlim, weblim, sendpnum }
+			rednet.send(id, textutils.serialize(sendr))
+            rednet.send(id, serverName)
         end
     end
 end
+chkfiles()
+openRednet()
+main()

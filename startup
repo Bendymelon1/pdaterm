@@ -90,7 +90,7 @@ function connectToServer()
 			print("pass")
 			lockChk.close()
 			local lockChk = assert(fs.open("lock","w"))
-			--lockChk.writeLine("1",1)
+			lockChk.writeLine("1",1)
 			lockChk.close()
 			connectToServer()
 		end
@@ -152,7 +152,7 @@ function showOSInformation()
 	term.setTextColor(256);
 	
 	term.setCursorPos(4, 5);
-	write("PDATerm v0.1");
+	write("PDATerm v0.2");
 	term.setCursorPos(4, 7);
 	write("A Free Mobile Terminal");
 	term.setCursorPos(4, 8);
