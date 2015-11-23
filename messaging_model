@@ -1,0 +1,63 @@
+--[[
+  _____  _____       _______                  
+ |  __ \|  __ \   /\|__   __|                 
+ | |__) | |  | | /  \  | | ___ _ __ _ __ ___  
+ |  ___/| |  | |/ /\ \ | |/ _ \ '__| '_ ` _ \ 
+ | |    | |__| / ____ \| |  __/ |  | | | | | |
+ |_|    |_____/_/    \_\_|\___|_|  |_| |_| |_|
+
+--]]
+
+local userId = {}
+local phoneNumbers = {}
+
+local messages = {}
+
+--[[
+
+    userExists(int userID):
+        returns true if the given userID exists
+        in the userId list
+
+        returns false otherwise
+
+--]]
+local function userExists(curUserID) 
+    for i = 1, table.getn(userId) do
+        if (userId[i] == curUserID) then
+            return true
+        end
+    end
+
+    return false
+end
+
+--[[
+    
+    sendMessage(int src, int tar, string message):
+        sends a message from the userID 'src' to the
+        userID 'tar'
+
+        returns true o
+--]]
+local function sendMessage(src, tar, message)
+    if (not userExists(src)) then
+        return false
+    end
+
+    if (not userExists(tar)) then
+        return false
+    end
+
+    table.insert(messages[src], {tar, message})
+
+    return true
+end
+
+local function pullMessages(curUserID)
+    if (not userExists(curUserID)) then
+        return nil
+    end
+
+    return textutils.serialize(messages[curUserID])
+end
