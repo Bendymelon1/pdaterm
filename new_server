@@ -124,9 +124,15 @@ local function getUserInfo(user)
     return nil
 end
 
-local function createUser(){
+local function createUser()
+    local newUserID = table.getn(userID) + 1
+    local newPhoneNumber = generatePhoneNum
     
-}
+    table.insert(userID, newUserID)
+    table.insert(phoneNumbers, newPhoneNumber)
+    
+    return {newUserID, newPhoneNumber} 
+end
 
 -- Function to check if all files exist
 local function chkfiles()
@@ -173,17 +179,17 @@ function main()
         end
 
         if (msg == "$REGISTER") then
-            --Check if the current user is already registered
-
             if (not userExists(id)) then
-                
-
-                --If not, generate a new phone number
-                --Return the phone number and add to records
+                local newUser = createUser()
+                rednet.send(textutils.serialize(newUser))
             else
                 rednet.send(id, "User already registered. ")
             end
 
+        end
+
+        if (msg == "$INFO") then
+            rednet.send(id, "$SERVERID " .. serverName)
         end
     end
 end
