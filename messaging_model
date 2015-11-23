@@ -13,6 +13,16 @@ local phoneNumbers = {}
 
 local messages = {}
 
+local function receiveFrom(user)
+	while true do
+		id, msg = rednet.receive()
+		
+		if (id == user) then
+			return msg
+		end
+	end
+end
+
 --[[
 
     userExists(int userID):
@@ -69,4 +79,28 @@ local function pullMessages(curUserID)
     end
 
     return textutils.serialize(messages[curUserID])
+end
+
+local function main()
+	while true do
+		id, msg = rednet.receive()
+		
+		if (msg == "$REGISTER") then
+			table.insert(userID, id);
+			print("User registered: " .. id)
+		end
+		
+		if (msg == "$SEND") then
+			local msgTar = receiveFrom(id)
+			local msgContent = receiveFrom(id)
+			
+			sendMessage(id, msgTar, msgContent)
+		end
+		
+		if (msg == "$RECEIVE") then
+			local messages = pullMessages(id)
+			
+			rednet.send(id, textutils.serialize(messages))
+		end
+	end
 end
