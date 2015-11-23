@@ -8,6 +8,8 @@
 
 --]]
 
+--testing git
+
 --Variables
 --Initializes the info files
 local servFile = fs.open("/services", "r")
