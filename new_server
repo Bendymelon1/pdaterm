@@ -100,6 +100,34 @@ local function openRednet()
 	end
 end
 
+local function userExists(curUserId)
+    for i = 1, table.getn(userID) do
+        if (userID[i] == curUserId) then
+            return true
+        end
+    end
+
+    return false
+end
+
+local function getUserInfo(user)
+    if (not userExists(user)) then
+        return nil
+    end
+
+    for i = 1, table.getn(userID) then
+        if (userID[i] == user) then
+            return {userID[i], phoneNumbers[i]}
+        end
+    end
+
+    return nil
+end
+
+local function createUser(){
+    
+}
+
 -- Function to check if all files exist
 local function chkfiles()
     log("INFO", "Checking files...")
@@ -147,9 +175,15 @@ function main()
         if (msg == "$REGISTER") then
             --Check if the current user is already registered
 
-            --If so, generate a new phone number
+            if (not userExists(id)) then
+                
 
-            --Return the phone number and add to records
+                --If not, generate a new phone number
+                --Return the phone number and add to records
+            else
+                rednet.send(id, "User already registered. ")
+            end
+
         end
     end
 end
