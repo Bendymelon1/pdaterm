@@ -38,7 +38,9 @@ end
         sends a message from the userID 'src' to the
         userID 'tar'
 
-        returns true o
+        returns true if the message is sent
+		
+		returns false otherwise
 --]]
 local function sendMessage(src, tar, message)
     if (not userExists(src)) then
@@ -53,6 +55,13 @@ local function sendMessage(src, tar, message)
 
     return true
 end
+
+--[[
+	pullMessages(int curUserID):
+		returns a list of the user's messages
+		
+		returns nil if the user does not exist
+--]]
 
 local function pullMessages(curUserID)
     if (not userExists(curUserID)) then
