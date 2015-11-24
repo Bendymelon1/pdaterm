@@ -1,0 +1,36 @@
+
+--[[
+	Messaging Testing script
+--]]
+
+local serverID = 69
+
+print("Testing Script")
+print("    1. Create User")
+print("    2. Send Message")
+print("    3. Pull Message")
+print()
+
+local c = read()
+
+if (c == 1) then
+	rednet.send(serverID, "$REGISTER")
+else if (c == 2) then
+	local tar = read()
+	local msg = read()
+	
+	rednet.send(serverID, "$SEND")
+	rednet.send(serverID, tar)
+	rednet.send(msg)
+else if (c == 3) then
+	rednet.send(serverID, "$RECEIVE")
+	
+	id, msg = rednet.receive()
+	
+	messages = textutils.unserialize(msg)
+	for i = 1, table.getn(messages) do
+		print("Message From: " .. messages[i][1])
+		print("Message Content: " .. messages[i][2])
+		print()
+	end
+end
