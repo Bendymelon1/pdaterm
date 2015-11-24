@@ -86,7 +86,7 @@ local function pullMessages(curUserID)
 	local userMsgContent = {}
 	
 	for i = 1, table.getn(msgSource) do
-		if (msgTarget[i] == curUserID) then
+		if (tostring(msgTarget[i]) == tostring(curUserID)) then
 			table.insert(userMsgSource, msgSource[i])
 			table.insert(userMsgContent, msgContent[i])
 		end
@@ -106,8 +106,12 @@ local function main()
 		end
 		
 		if (msg == "$SEND") then
-			local msgTar = receiveFrom(id)
-			local msgContent = receiveFrom(id)
+			local msgTar = tostring(receiveFrom(id))
+			local msgContent = tostring(receiveFrom(id))
+			
+			print("From: " .. id)
+			print("To:   " .. msgTar)
+			print("Cont: " .. msgContent)
 			
 			sendMessage(id, msgTar, msgContent)
 		end
