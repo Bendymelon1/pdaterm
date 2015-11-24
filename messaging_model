@@ -8,18 +8,19 @@
 
 --]]
 
-userId = {}
-phoneNumbers = {}
+local userId = {}
+local phoneNumbers = {}
 
-msgSource = {}
-msgTarget = {}
-msgContent = {}
+local msgSource = {}
+local msgTarget = {}
+local msgContent = {}
+
 
 local function receiveFrom(user)
 	while true do
 		id, msg = rednet.receive()
 		
-		if (id == user) then
+		if (tostring(id) == tostring(user)) then
 			return msg
 		end
 	end
@@ -96,6 +97,31 @@ local function pullMessages(curUserID)
 			textutils.serialize(userMsgContent)}
 end
 
+--[[
+
+    pullMessageCount(int curUserID):
+        returns the number of messages subjected to 
+        the given user by ID
+
+        returns -1 if the user does not exists
+
+--]]
+local function pullMessageCount(curUserID)
+    if (not userExists(curUserID)) then
+        return -1
+    end
+
+    local messageCnt = 0
+
+    for i = 1, table.getn(msgSource) do
+        if (tostring(msgTarget[i]) == tostring(curUserID)) then
+            messageCnt = messageCnt + 1
+        end
+    end
+
+    return messageCnt
+end
+
 local function main()
 	while true do
 		id, msg = rednet.receive()
@@ -108,18 +134,28 @@ local function main()
 		if (msg == "$SEND") then
 			local msgTar = tostring(receiveFrom(id))
 			local msgContent = tostring(receiveFrom(id))
-			
+            
+            print("Sending message...")
 			print("From: " .. id)
 			print("To:   " .. msgTar)
 			print("Cont: " .. msgContent)
 			
-			sendMessage(id, msgTar, msgContent)
+			if (sendMessage(id, msgTar, msgContent)) then
+                print("Successful")
+            else
+                print("Unsuccessful")
+            end
 		end
 		
 		if (msg == "$RECEIVE") then
 			local messages = pullMessages(id)
+            print("Pulling messages from user id " .. id)
+            print("There are " .. pullMessageCount(id) .. " messages. ")
 			
-			rednet.send(id, textutils.serialize(messages))
+            print("Messages Object: ")
+            print(textutils.serialize(messages))
+
+            rednet.send(id, textutils.serialize(messages))
 		end
 	end
 end
