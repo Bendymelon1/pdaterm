@@ -8,10 +8,10 @@
 
 --]]
 
-local userId = {}
-local phoneNumbers = {}
+userId = {}
+phoneNumbers = {}
 
-local messages = {}
+messages = {}
 
 local function receiveFrom(user)
 	while true do
@@ -86,7 +86,7 @@ local function main()
 		id, msg = rednet.receive()
 		
 		if (msg == "$REGISTER") then
-			table.insert(userID, id);
+			table.insert(userId, id);
 			print("User registered: " .. id)
 		end
 		
