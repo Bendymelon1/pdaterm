@@ -29,13 +29,17 @@ end
 
 if (c == "3") then
 	rednet.send(serverID, "$RECEIVE")
-	
 	id, msg = rednet.receive()
 	
-	messages = textutils.unserialize(msg)
-	for i = 1, table.getn(messages) do
-		print("Message From: " .. messages[i][1])
-		print("Message Content: " .. messages[i][2])
+	local messages = textutils.unserialize(msg)
+	
+	local msgSource = textutils.unserialize(messages[1])
+	local msgContent = textutils.unserialize(messages[2])
+	
+	
+	for i = 1, table.getn(msgSource) do
+		print("Message From: " .. msgSource[i])
+		print("Message Content: " .. msgContent[i])
 		print()
 	end
 end

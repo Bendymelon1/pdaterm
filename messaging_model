@@ -11,7 +11,9 @@
 userId = {}
 phoneNumbers = {}
 
-messages = {}
+msgSource = {}
+msgTarget = {}
+msgContent = {}
 
 local function receiveFrom(user)
 	while true do
@@ -61,7 +63,9 @@ local function sendMessage(src, tar, message)
         return false
     end
 
-    table.insert(messages[src], {tar, message})
+	table.insert(msgSource, src)
+	table.insert(msgTarget, tar)
+	table.insert(msgContent, message)
 
     return true
 end
@@ -78,7 +82,18 @@ local function pullMessages(curUserID)
         return nil
     end
 
-    return textutils.serialize(messages[curUserID])
+    local userMsgSource = {}
+	local userMsgContent = {}
+	
+	for i = 1, table.getn(msgSource) do
+		if (msgTarget[i] == curUserID) then
+			table.insert(userMsgSource, msgSource[i])
+			table.insert(userMsgContent, msgContent[i])
+		end
+	end
+	
+	return {textutils.serialize(usrMsgSource), 
+			textutils.serialize(userMsgContent)}
 end
 
 local function main()
