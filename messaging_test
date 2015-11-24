@@ -18,12 +18,12 @@ if (c == "1") then
 end
 
 if (c == "2") then
-	local tar = read()
-	local msg = read()
+	local tar = tostring(read())
+	local msg = tostring(read())
 	
 	rednet.send(serverID, "$SEND")
 	rednet.send(serverID, tar)
-	rednet.send(msg)
+	rednet.send(serverID, msg)
 	
 end
 
