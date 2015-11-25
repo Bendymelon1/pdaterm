@@ -1,0 +1,637 @@
+rednet.open("back");
+
+local connected = 0;
+local serverName = nil;
+local serverID = 0;
+
+
+function repaint()
+	term.setCursorPos(1, 1);
+
+	term.setBackgroundColor(colors.white);
+	for i = 1, 20 do
+		for j = 1, 26 do
+			write(" ");
+		end
+		print();
+	end
+	
+	if (connected == 0) then
+		term.setBackgroundColor(colors.red);
+	else
+		term.setBackgroundColor(colors.green);
+	end
+	
+	term.setTextColor(colors.white);
+		
+	term.setCursorPos(1, 1);
+	write("                          ");
+	
+	term.setCursorPos(1, 20);
+	write("                          ");
+	
+	
+	term.setCursorPos(1, 1);
+	write(serverName.."");
+	
+	
+end
+
+function settings()
+	
+end
+
+local function getSimInfo()
+	simID = os.computerID()
+	rednet.broadcast("$GETC",6942)
+	--This automatically detects a carrier that the user is registered on.
+	--6942 is by default the carrier frequency
+	id, msg = rednet.receive(5)
+	if msg ~= nil then
+		info = textutils.unserialize(msg)
+		info[1] = maxTexts
+		info[2] = maxSites
+		info[3] = pNumber
+	end
+end
+
+
+function connectToServer()
+	if fs.exists("/lock") then
+		local lockChk = assert(fs.open("lock","r"))
+		lock = lockChk.readLine()
+		if lock == "1" then
+			rednet.broadcast("$GETC",6942);
+			id, msg = rednet.receive(5);
+			planDetails = textutils.unserialize(msg)
+			id, msg = rednet.receive(5);
+			 
+			showOSInformation();
+			
+			if (msg == nil) then
+				showErrorMessage("No Carrier");
+				serverName = "No Carrier"
+				connected = 0;
+			else
+				serverName = "Searching for Carrier..."
+				store = msg;
+				serverID = id;
+				getSimInfo()
+				connected = 1;
+			end
+		else
+			term.clear()
+			term.setCursorPos(1,1)
+			print("SIM card requires setup!")
+			print("Launching automated setup...")
+			sleep(0.1)
+			print("Preparing account...")
+			sleep(0.5)
+			rednet.broadcast("$REGISTER",6942)
+			id,msg = rednet.receive()
+			print("pass")
+			lockChk.close()
+			local lockChk = assert(fs.open("lock","w"))
+			lockChk.writeLine("1",1)
+			lockChk.close()
+			connectToServer()
+		end
+	else
+		shell.run("pastebin get YUZ9d1VN lock")
+	end
+end
+
+
+function showErrorMessage(message)
+	term.setBackgroundColor(16384);
+	term.setTextColor(1);
+	
+	for i = 8, 13 do
+		term.setCursorPos(2, i);
+		for j = 1, 24 do
+			write(" ");
+		end 
+		print();
+	end
+	
+	term.setCursorPos(11, 9);
+	write("Error");
+	
+	
+	term.setCursorPos(4, 11);
+	write(message);
+end
+
+function showInformationMessage(title, line1, line2)
+	term.setBackgroundColor(colors.lightBlue);
+	term.setTextColor(colors.white);
+	
+	for i = 8, 13 do
+		term.setCursorPos(2, i);
+		for j = 1, 24 do
+			write(" ");
+		end 
+		print();
+	end
+	
+	if title == nil then
+		term.setCursorPos(3, 9);
+		write(title)
+	else
+		term.setCursorPos(3, 9);
+		write(title);
+	end
+	
+	
+	term.setCursorPos(4, 11);
+	write(line1);
+	term.setCursorPos(4, 12);
+	write(line2);
+end
+
+function showOSInformation()
+	term.setBackgroundColor(1);
+	term.setTextColor(256);
+	
+	term.setCursorPos(4, 5);
+	write("PDATerm v0.2");
+	term.setCursorPos(4, 7);
+	write("A Free Mobile Terminal");
+	term.setCursorPos(4, 8);
+	write("for ComputerCraft");
+end
+
+function lock()
+	term.setCursorPos(1, 1);
+	term.setBackgroundColor(32768);
+	term.setTextColor(1);
+	
+	for i = 1, 20 do
+		for j = 1, 26 do
+			if (i == 1 or i == 20 or j == 1 or j == 26) then
+				term.setBackgroundColor(16384);
+			end
+			write(" ");
+			term.setBackgroundColor(32768);
+		end
+		if (i ~= 20) then
+			print();
+		end
+	end
+	
+	term.setCursorPos(5, 3);
+	write("--Enter Passcode--");
+	
+	cpass = "1234";
+	pass = "";
+	
+	term.setTextColor(1);
+	
+	while(pass ~= cpass) do
+	
+		pass = "";
+		
+		term.setCursorPos(5, 15);
+		write("   -  -  -  -   ");
+		
+		for i = 1, 4 do
+			term.setCursorPos(5 + i * 3, 15);
+			local event, key = os.pullEvent("char");
+			pass = pass .. key;
+			write("*");
+		end
+	end
+	
+	
+end
+
+
+function showInputDialog(message)
+	term.setBackgroundColor(512);
+	term.setTextColor(1);
+	for l = 6, 17 do
+		term.setCursorPos(2, l);
+		for k = 1, 24 do
+			write(" ");
+		end 
+		print();
+	end
+	term.setCursorPos(4, 6);
+	io.write(message)
+	term.setCursorPos(5, 14);
+	input = io.read()
+	return input;
+end
+
+function rednetControl()
+	term.setCursorPos(1, 1);
+	term.setBackgroundColor(8);
+	term.setTextColor(1);
+	
+	for i = 1, 20 do
+		for j = 1, 26 do
+			if (i == 1 or i == 20 or j == 1 or j == 26) then
+				term.setBackgroundColor(2048);
+			end
+			write(" ");
+			term.setBackgroundColor(8);
+		end
+		if (i ~= 20) then
+			print();
+		end
+	end
+	
+	term.setCursorPos(3, 3);
+	write("Advanced Rednet Console");
+	
+	term.setBackgroundColor(colors.orange);
+	term.setCursorPos(3, 6);
+	write("    OPEN Rednet       ");
+	term.setCursorPos(3, 8);
+	write("    CLOSE Rednet      ");
+	term.setCursorPos(3, 10);
+	write("  Rednet Broadcast    ");
+	term.setCursorPos(3, 12);
+	write("    Send Message      ");
+	term.setCursorPos(3, 14);
+	write("     Get Message      ");
+	term.setCursorPos(3, 16);
+	write("    Computer ID       ");
+	term.setCursorPos(3, 18);
+	write("        Exit          ");
+	
+	local event, button, x, y = os.pullEvent("mouse_click");
+	
+	if (button == 1) then
+		if (y == 6) then
+			rednet.open("back");
+			showInformationMessage("Rednet Turned On");
+			sleep(2);
+		end
+		if (y == 8) then
+			rednet.close("back");
+			showInformationMessage("Rednet Turned Off");
+			sleep(2);
+		end
+		if (y == 10) then
+			message = showInputDialog("Broadcast Message");
+			showInformationMessage("Broadcast Sending...","Broadcasting...", "");
+			rednet.broadcast(message);
+			sleep(2);
+		end
+		if (y == 12) then
+			id = tonumber(showInputDialog("Target ID"));
+			message = showInputDialog("Enter Message");
+			showInformationMessage("Sending Message...", "");
+			rednet.send(id, message);
+			sleep(2);
+		end
+		if (y == 14) then
+			timeout = tonumber(showInputDialog("Enter Timeout"));
+			showInformationMessage("Rednet","Waiting for", "message");
+			id, msg = rednet.receive(timeout);
+			if (msg == nil) then
+				showErrorMessage("Receive Timeout.");
+				sleep(2);
+			else
+				showInformationMessage("Data Received!",id, msg);
+				sleep(5);
+			end
+		end
+		if (y == 16) then
+			showInformationMessage("Message","Computer ID", os.getComputerID());
+			sleep(5);
+		end
+		
+		if (y == 18) then
+			return;
+		end
+		rednetControl();
+	end
+end
+
+function resetColor()
+	term.setBackgroundColor(colors.white)
+	term.clear()
+	repaint()
+end
+
+function newMainMenu()
+	term.setCursorPos(1,3)
+	term.setTextColor(colors.red)
+	write("01230000012300000123000001230")
+	--gps
+	resetColor()
+	term.setCursorPos(3,3)
+	term.setBackgroundColor(colors.blue)
+	write("    ")
+	term.setCursorPos(3,4)
+	term.setTextColor(colors.black)
+	write("    ")
+	term.setCursorPos(3,5)
+	write("    ")
+	term.setCursorPos(3,7)
+	term.setBackgroundColor(colors.white)
+	write("GPS")
+	
+	--Browser
+	term.setCursorPos(12,3)
+	--term.setBackgroundColor(colors.lightBlue) --disabled
+	term.setBackgroundColor(colors.lightGray)
+	term.setTextColor(colors.green)
+	write(" _  ")
+	term.setCursorPos(12,4)
+	write("|O| ")
+	term.setCursorPos(12,5)
+	write(" -  ")
+	term.setBackgroundColor(colors.white)
+	term.setTextColor(colors.black)
+	term.setCursorPos(12,7)
+	write("Web")
+	
+	--sms
+	--term.setBackgroundColor(colors.yellow) --disabled
+	term.setBackgroundColor(colors.lightGray)
+	term.setCursorPos(21,3)
+	write("    ")
+	term.setCursorPos(21,4)
+	write("    ")
+	term.setCursorPos(21,5)
+	write("    ")
+	term.setCursorPos(21,7)
+	term.setBackgroundColor(colors.white)
+	write("SMS")
+	
+	--rednet console
+	term.setBackgroundColor(colors.red)
+	term.setTextColor(colors.white)
+	term.setCursorPos(3,8)
+	write(" R  ")
+	term.setCursorPos(3,9)
+	write("  N ")
+	term.setCursorPos(3,10)
+	write("    ")
+	term.setCursorPos(3,12)
+	term.setBackgroundColor(colors.white)
+	term.setTextColor(colors.black)
+	write("Rednet")
+	
+	--clock
+	term.setBackgroundColor(colors.black)
+	term.setTextColor(colors.white)
+	term.setCursorPos(12,8)
+	write(" 12 ")
+	term.setCursorPos(12,9)
+	write(" 45 ")
+	term.setCursorPos(12,10)
+	write(" PM ")
+	term.setCursorPos(12,12)
+	term.setBackgroundColor(colors.white)
+	term.setTextColor(colors.black)
+	write("Clock")
+	--app store
+	term.setBackgroundColor(colors.lightBlue)
+	term.setCursorPos(21,8)
+	write("    ")
+	term.setCursorPos(21,9)
+	write("APPS")
+	term.setCursorPos(21,10)
+	write("    ")
+	term.setCursorPos(21,12)
+	term.setBackgroundColor(colors.white)
+	write("Store")
+	--settings
+	term.setBackgroundColor(colors.gray)
+	term.setCursorPos(3,13)
+	write(" |  ")
+	term.setCursorPos(3,14)
+	write("-o- ")
+	term.setCursorPos(3,15)
+	write(" |  ")
+	term.setCursorPos(1,17)
+	term.setBackgroundColor(colors.white)
+	write("Settings")
+	--shutdown
+	term.setCursorPos(12,13)
+	term.setBackgroundColor(colors.red)
+	term.setTextColor(colors.white)
+	write("I   ")
+	term.setCursorPos(12,14)
+	write(" O  ")
+	term.setCursorPos(12,15)
+	write("    ")
+	term.setBackgroundColor(colors.white)
+	term.setCursorPos(12,17)
+	term.setTextColor(colors.black)
+	write("Power")
+	--return to old layout
+	term.setCursorPos(21,13)
+	term.setBackgroundColor(colors.red)
+	term.setTextColor(colors.white)
+	write("    ")
+	term.setCursorPos(21,14)
+	write(" <- ")
+	term.setCursorPos(21,15)
+	write("    ")
+	term.setCursorPos(20,17)
+	term.setTextColor(colors.black)
+	term.setBackgroundColor(colors.white)
+	write("Classic")
+
+
+	local event, button, x, y = os.pullEvent("mouse_click");
+	
+	--gps
+	if x >= 3 and x <= 6 then
+		if y >= 3 and y <= 5 then
+			showInformationMessage("Please wait...","Getting Location", " ");
+			if (gps.locate(2) == nil) then
+				showErrorMessage("No GPS Signal.");
+				sleep(2);
+			else
+				x, y, z = gps.locate();
+				showInformationMessage("GPS","Your Location: ", x .. ", " .. y .. ", " .. z);
+				sleep(5);
+			end
+		end
+	end
+	
+	--web
+	--sms
+	if x >= 21 and x <= 24 then
+		if y >= 3 and y <= 5 then
+			test()
+		end
+	end
+	--rednet console
+	if x >= 3 and x <= 6 then
+		if y >= 8 and y <= 11 then
+			showInformationMessage("Loading...","Please Wait...", " ");
+			sleep(2);
+			rednetControl();
+		end
+	end
+			
+	
+	if x >= 12 and x <= 15 then
+		--web
+		if y >= 3 and y <= 5 then
+			test()
+		end
+		--clock
+		if y >= 8 and y <= 11 then
+			showInformationMessage("Time", textutils.formatTime(os.time(),false),"");
+			sleep(2)
+		end
+		--shutdown
+		if y >= 13 and y <= 15 then
+			showInformationMessage("Goodbye","Shutting Down..."," ");
+			sleep(2);
+			os.shutdown();
+		end
+	end
+	--app store
+	if x >= 21 and x <= 24 then
+		if y >= 8 and y <= 11 then
+			test()
+		end
+	end
+	--settings
+	if x >= 3 and x <= 6 then
+		if y >= 13 and y <= 15 then
+			test()
+		end
+	end
+	--shutdown
+	--if x >= 12 and x <= 15 then
+		
+	--end
+	
+	--revert to old		
+	if x >= 21 and x <= 24 then
+		if y >= 13 and y <= 15 then
+			repaint()
+			displayMainMenu()
+		end
+	end
+	newMainMenu()
+end
+function test()
+	showInformationMessage("Not Found", "Feature not","implemented!")
+	sleep(2)
+end
+
+function displayMainMenu()
+	
+	term.setTextColor(colors.red);
+	
+	term.setCursorPos(2,3);
+	term.setBackgroundColor(colors.yellow);
+	write("     [BETA] New GUI     ");
+	term.setCursorPos(2, 5);
+	term.setBackgroundColor(colors.yellow);
+	write("  Current GPS Position  ");
+	
+	term.setCursorPos(2, 7);
+	term.setBackgroundColor(colors.lightGray);
+	write("    Internet Browser    ");
+	
+	term.setCursorPos(2, 9);
+	term.setBackgroundColor(colors.lightGray);
+	write("       Messaging        ");
+	
+	term.setCursorPos(2, 11);
+	term.setBackgroundColor(colors.yellow);
+	write("    Rednet Console      ");
+	
+	term.setCursorPos(2, 13);
+	term.setBackgroundColor(colors.lightGray);
+	write("       Settings         ");
+	term.setCursorPos(2, 15);
+	term.setBackgroundColor(colors.yellow);
+	write("       Reconnect        ");
+	
+	term.setCursorPos(2, 17);
+	term.setBackgroundColor(colors.yellow);
+	write("       Shutdown         ");
+	term.setCursorPos(1,19);
+	
+	local event, button, x, y = os.pullEvent("mouse_click");
+
+	if (button == 1) then
+		if (y == 3) then
+			newMainMenu()
+		end
+		if (y == 5) then
+			showInformationMessage("Please wait...","Getting Location", "");
+			if (gps.locate(2) == nil) then
+				showErrorMessage("No GPS Signal.");
+				sleep(2);
+			else
+				x, y, z = gps.locate();
+				showInformationMessage("GPS","Your Location: ", x .. ", " .. y .. ", " .. z);
+				sleep(5);
+			end
+		end
+		
+		if (y == 7) then
+		end
+		
+		if (y == 9) then
+		end
+		
+		
+		if (y == 11) then
+			showInformationMessage("Loading...","Please Wait...", "");
+			sleep(2);
+			rednetControl();
+		end
+		
+		if (y == 13) then
+		end
+		
+		if (y == 15) then
+			showInformationMessage("Loading...","Connecting...", "");
+			connected = 0;
+			connectToServer();
+			
+		end
+		
+		if (y == 17) then
+			showInformationMessage("Goodbye","Shutting Down...", "");
+			sleep(2);
+			os.shutdown();
+		end
+		
+	end
+	
+	repaint();
+	displayMainMenu();
+
+end
+
+
+
+
+lock();
+
+connectToServer();
+repaint();
+showOSInformation();
+
+if (connected == 0) then
+	sleep(0.75)
+	showErrorMessage("No Carrier");
+	
+else
+	
+	sleep(0.75)
+	serverName = store
+	repaint();
+	showInformationMessage("Carrier Located","Connected to", serverName);
+	sleep(3);
+end
+
+
+repaint();
+displayMainMenu();
