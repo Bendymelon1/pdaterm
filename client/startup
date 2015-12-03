@@ -58,7 +58,6 @@ function repaint()
 	term.setCursorPos(1, 1);
 	write(serverName);
 	
-	
 end
 
 function settings()
