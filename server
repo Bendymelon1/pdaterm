@@ -186,9 +186,9 @@ function main()
 			end
 		end
 	
-		--if (msg == "$INFO") then
-			--rednet.send(id, serverName);
-		--end
+		if (msg == "$INFO") then
+			rednet.send(id, serverName);
+		end
 		
 	end
 end

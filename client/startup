@@ -4,6 +4,30 @@ local connected = 0;
 local serverName = nil;
 local serverID = 0;
 
+function getServerList() 
+	rednet.broadcast("$INFO");
+	
+	local lstServerID = {}
+	local lstServerName = {}
+	
+	for i = 1, 10 do
+		id, msg = rednet.receive(1)
+		local flag = false
+		
+		for j = 1, table.getn(lstServerID) do
+			if (lstServerID[j] == id) then
+				flag = true
+			end
+		end
+		
+		if (not flag) then
+			table.insert(lstServerID, id)
+			table.insert(lstServerName, msg)
+		end
+	end
+	
+	return lstServerID, lstServerName
+end
 
 function repaint()
 	term.setCursorPos(1, 1);
