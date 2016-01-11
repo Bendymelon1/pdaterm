@@ -39,15 +39,16 @@ local function loadUserInfo()
     log("INFO", "Detected " .. totalUserCount .. " user files. ")
     
 	for line2 = 1, totalUserCount do
+		print(totalUserCount)
         curUserID = userFile.readLine()
         curUserPhone = phoneNumFile.readLine()
-		curUserPlan = planFile.readLine()
+		--curUserPlan = planFile.readLine()
 
-        table.insert(userID, curUserId)
+        table.insert(userID, curUserID)
         table.insert(phoneNumbers, curUserPhone)
 		table.insert(plandb, curUserPlan)
 
-        log("INFO", "Loaded user id " .. curUserID)
+        log("INFO", "Loaded user id ")
 	end
 end
 
@@ -173,23 +174,30 @@ end
 
 function main()
     
-    --readUserFiles()
+    loadUserInfo()
 	
 	term.clear();
 	term.setCursorPos(1, 1);
 	term.setTextColor(colors.red);
 	print ("          Phone Carrier Server\n");
 	term.setTextColor(colors.white);
-	
+	print ("\n\nListening for Requests...");
     while true do
-		print ("\n\nListening for Requests...");
+		time = textutils.formatTime(os.time(),false)
         id, msg = rednet.receive()
 
         if (msg == "$SERVICES") then
             --TODO: Handle services
         end
+        
+	      	if msg == "$STAT" then
+		          sendr2 = { servername }
+	          	rednet.send(id, sendr2)
+	      	end
+		
 
         if (msg == "$REGISTER") then
+			         log("INFO", id.." initiated a registration command!")
             if (not userExists(id)) then
                 local newUser = tmpUser
                 rednet.send(id, textutils.serialize(newUser))
@@ -201,9 +209,11 @@ function main()
 		
 		if (msg == "$INFO") then
             rednet.send(id, "$SERVERID " .. serverName)
+			log("INFO", "Received $INFO command (deprecated) from "..id..".")
         end
 		
         if (msg == "$GETC") then
+			log("INFO", "Received $GETC command from "..id..".")
 			if plandb[id] == "1" then
 				txtlim = 100
 				weblim = 100
@@ -212,6 +222,8 @@ function main()
 				txtlim = 2000
 				weblim = 100000
 			end
+			txtlim = 100000
+			weblim = 100000
 			sendpnum = phoneNumbers[id]
 			sendr = { txtlim, weblim, sendpnum }
 			rednet.send(id, textutils.serialize(sendr))
