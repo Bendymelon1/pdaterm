@@ -1,3 +1,3 @@
-# PDATerm
+### PDATerm
 
-### An User Interface for ComputerCraft PDAs
+PDATerm is an user interface for ComputerCraft's Pocket Computers. Check the wiki for more information!
