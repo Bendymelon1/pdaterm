@@ -1,0 +1,2 @@
+--shell.run("github Bendymelon1 pdaterm")
+shell.run("server")

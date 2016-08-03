@@ -1,0 +1,187 @@
+local function openRednet()
+	local listOfSides = rs.getSides()
+	local listofPossibles = {}
+	c1 = 0
+	for c1 = 1,6 do
+		if peripheral.isPresent(tostring(listOfSides[c1])) and peripheral.getType(listOfSides[c1]) == "modem" then
+			table.insert(listofPossibles,tostring(listOfSides[c1]))
+		end
+
+		if c1 == 6 and table.maxn(listofPossibles) == 0 then
+			print("No Modem Detected!")
+			return nil
+		end
+
+		if c1 == 6 and table.maxn(listofPossibles) ~= 0 then
+			rednet.open(listofPossibles[1])
+			return listofPossibles[1]
+		end
+	end
+end
+local function chkfiles()
+	if fs.exists("/services") then
+		if fs.exists("/users") then
+			if fs.exists("/mail") then
+				if fs.exists("/userids") then
+					if fs.exists("/pnums") then
+						return true
+					else
+						shell.run("pastebin get SQvMcfK0 pnums")
+					end
+				else
+					shell.run("pastebin get SQvMcfK0 userids")
+				end
+			else
+				shell.run("pastebin get SQvMcfK0 mail")
+			end
+		else
+			shell.run("pastebin get SQvMcfK0 users")
+		end
+	else
+		shell.run("pastebin get SQvMcfK0 services")
+	end
+end
+local function readLines(filename)
+	local ctr = 0
+	for a in io.lines(filename) do
+		ctr = ctr + 1
+	end
+	return ctr
+end
+local function phonegen()
+	math.randomseed(os.time())
+	gend = math.random(1000,9999)
+	retpnum = "123"..gend
+end
+function main()
+	print("pass")
+	openRednet()
+	local services = fs.open("/services", "r");
+	local userFile = fs.open("/users", "r");
+	local mailFile = fs.open("/mail", "r");
+	local userID = {};
+	local mailDatabase = {};
+	print("pass")
+	--local userCount = readLines("users")
+	--local serviceCount = readLines("services")
+	--local serviceName = {};
+	--local serviceAddress = {};
+	local serverName = "MCNET";
+	-- This is what will be displayed as the carrier on Client
+	userIDFile = "/userids"
+	local usrLoader = assert(fs.open(userIDFile,"r"))
+	totalUserCount = usrLoader.readLine()
+	for line2 = 1, totalUserCount do
+		table.insert(userID, line2)
+	end
+	print("pass")
+	local pnum = {}
+	local pnumdb = assert(fs.open("/pnums", "r"))
+	pnumCntR = pnumdb.readLine()
+	for linepn = 1, pnumCntR do
+		table.insert(pnum, linepn)
+	end
+	print("pass")
+	--for i = 0, serviceCount - 1 do
+		--serviceName[i] = services.readLine();
+		--serviceAddress[i] = services.readLine();
+		--print ("Loaded Service. NAME:" .. serviceName[i] .. ", ADDR:" .. serviceAddress[i]);
+	--end
+	-- Disabled Services, I see no use for it at the moment.
+	term.clear();
+	term.setCursorPos(1, 1);
+	term.setTextColor(colors.red);
+	print ("          Phone Carrier Server\n");
+	term.setTextColor(colors.white);
+
+	while true do
+	
+		print ("\n\nListening for Requests...");
+
+		id, msg = rednet.receive(6942,300);
+		print ("Incoming Message. ID:" .. id .. ", MSG:" .. msg);
+	
+		if (msg == "$GETC") then
+			if userID[id] ~= nil then
+				usr = "/user_"..id
+				local usrTable = {}
+				local planner = assert(fs.open(usr, "r"))
+				for line1 in planner.readLine() do
+					table.insert(usrTable, line1)
+				end
+				
+				--usrTable[1] is plan number
+				if usrTable[1] == "1" then
+					--plan specs
+					--call minutes (currently no function)
+					--callmin = 100
+					--texts allowed
+					textcnt = 100
+					--data (number of websites allowed to view per billing cycle)
+					datagbl = 1
+				end
+				if usrTable[1] == "2" then
+					--callmin = 200
+					textcnt = 200
+					datagbl = 100000
+				end
+				pnumsend = pnum[id]
+				tablesend = {}
+				table.insert(tablesend, textcnt)
+				table.insert(tablesend, datagbl)
+				table.insert(tablesend, pnumsend)
+				sTableSend = textutils.serialize(tablesend)
+				rednet.send(id, sTableSend)
+				rednet.send(id, serverName)
+			else
+				rednet.send(id,"Phone not registered on network!")
+			end
+		end
+		if (msg == "$REGISTER") then
+			phonegen()
+			for y = 1, pnumCntR do
+				if pnum[y] == gend then
+					phonegen()
+				end
+			end
+			rednet.send(id, retpnum)
+			pnum[id] = gend
+			tmp = 0
+			pnumdb.close()
+			local pnumdb = assert(fs.open("/pnums", "w"))
+			pnumdb.writeLine(gend, id)
+			pnumdb.close()
+			local pnumdb = assert(fs.open("/pnums", "r"))
+			if planner ~= nil then
+				planner.close()
+			end
+			usr = "/user_"..id
+			print(usr)
+			if fs.exists(usr) then
+				local planner = assert(fs.open(usr, "r"))
+				planner.writeLine("2", id)
+				planner.close()
+			else
+				shell.run("pastebin get SQvMcfK0 user_"..id)
+				local planner = assert(fs.open(usr, "w"))
+				planner.writeLine("2", id)
+				planner.close()
+			end
+		end
+		
+		if (msg == "$SERVICES") then
+			rednet.send(id, tostring(serviceCount));
+			for i = 0, serviceCount - 1 do
+				rednet.send(id, serviceName[i]);
+				rednet.send(id, serviceAddress[i]);
+			end
+		end
+	
+		--if (msg == "$INFO") then
+			--rednet.send(id, serverName);
+		--end
+		
+	end
+end
+chkfiles()
+main()

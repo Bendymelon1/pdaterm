@@ -1,0 +1,10 @@
+function loadAPI(api)
+	os.loadAPI(api)
+end
+loadAPI("/sys/pt")
+print("Welcome to PDATerm!")
+print("Loading System Files...")
+print("The Modular Update!")
+sleep(0.3)
+--loading system files
+shell.run("/sys/main")

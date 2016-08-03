@@ -1,0 +1,86 @@
+while true do
+	resetColor()
+	term.setCursorPos(1, 1);
+	term.setBackgroundColor(8);
+	term.setTextColor(1);
+	for i = 1, 20 do
+		for j = 1, 26 do
+			if (i == 1 or i == 20 or j == 1 or j == 26) then
+				term.setBackgroundColor(2048);
+			end
+			write(" ");
+			term.setBackgroundColor(8);
+		end
+		if (i ~= 20) then
+			print();
+		end
+	end
+	
+	term.setCursorPos(3, 3);
+	write("Advanced Rednet Console");
+	
+	term.setBackgroundColor(colors.orange);
+	term.setCursorPos(3, 6);
+	write("    OPEN Rednet       ");
+	term.setCursorPos(3, 8);
+	write("    CLOSE Rednet      ");
+	term.setCursorPos(3, 10);
+	write("  Rednet Broadcast    ");
+	term.setCursorPos(3, 12);
+	write("    Send Message      ");
+	term.setCursorPos(3, 14);
+	write("     Get Message      ");
+	term.setCursorPos(3, 16);
+	write("    Computer ID       ");
+	term.setCursorPos(3, 18);
+	write("        Exit          ");
+	
+	local event, button, x, y = os.pullEvent("mouse_click");
+	
+	if (button == 1) then
+		if (y == 6) then
+			rednet.open("back");
+			showInformationMessage("Rednet Turned On");
+			sleep(2);
+		end
+		if (y == 8) then
+			rednet.close("back");
+			showInformationMessage("Rednet Turned Off");
+			sleep(2);
+		end
+		if (y == 10) then
+			message = showInputDialog("Broadcast Message");
+			showInformationMessage("Broadcast Sending...","Broadcasting...", "");
+			rednet.broadcast(message);
+			sleep(2);
+		end
+		if (y == 12) then
+			id = tonumber(showInputDialog("Target ID"));
+			message = showInputDialog("Enter Message");
+			showInformationMessage("Sending Message...", "");
+			rednet.send(id, message);
+			sleep(2);
+		end
+		if (y == 14) then
+			timeout = tonumber(showInputDialog("Enter Timeout"));
+			showInformationMessage("Rednet","Waiting for", "message");
+			id, msg = rednet.receive(timeout);
+			if (msg == nil) then
+				showErrorMessage("Receive Timeout.");
+				sleep(2);
+			else
+				showInformationMessage("Data Received!",id, msg);
+				sleep(5);
+			end
+		end
+		if (y == 16) then
+			showInformationMessage("Message","Computer ID", os.getComputerID());
+			sleep(5);
+		end
+		
+		if (y == 18) then
+			return;
+		end
+	end
+	
+end

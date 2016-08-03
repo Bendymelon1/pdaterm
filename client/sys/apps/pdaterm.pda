@@ -1,0 +1,16 @@
+--[[
+When developing PDATerm plugins, please follow these simple guidelines.
+1. Follow the format of the example below. (You can also add functions)
+2. The plugin must be written in Lua.
+3. The plugin must be stable. (i.e. It doesn't crash)
+4. The plugin cannot be malicious.
+--]]
+--EXAMPLE PDATERM PLUGIN
+function run()
+	term.setBackgroundColor(colors.black)
+	term.setTextColor(colors.white)
+	term.clear()
+	print("Hello World!")
+	sleep(1)
+end
+run()
